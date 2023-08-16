@@ -9,4 +9,6 @@
 
     <color name="lightGrey">#C4C4C4</color>
 
+    <color name="toolbarColorControlNormal">#272121</color>
+
 </resources>
