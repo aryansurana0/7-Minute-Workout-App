@@ -15,19 +15,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/iv_exercise"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/tv_exercise"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_exercise"
+        tools:src="@drawable/img_main_page" />
+
     <TextView
-        android:id="@+id/tv_title"
+        android:id="@+id/tv_exercise"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="GET READY FOR"
+        android:text="GET READY"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="@color/accent"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/fl_progress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar_exercise"
+        app:layout_constraintTop_toBottomOf="@id/iv_exercise"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <FrameLayout
@@ -35,12 +45,13 @@
         android:layout_width="128dp"
         android:layout_height="128dp"
         android:background="@drawable/item_circular_color_accent_border"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/tv_up_next"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title">
+        app:layout_constraintTop_toBottomOf="@id/tv_exercise">
 
         <ProgressBar
+            android:id="@+id/progress_bar_timer"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="128dp"
             android:layout_height="128dp"
@@ -73,5 +84,20 @@
         </LinearLayout>
 
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_up_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Up Next: "
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:textColor="@color/accent"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fl_progress"
+        app:layout_constraintVertical_chainStyle="packed" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
