@@ -1,5 +1,6 @@
 package com.example.a7minuteworkout
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -13,8 +14,8 @@ class ExerciseActivity : AppCompatActivity() {
     private lateinit var binding: ActivityExerciseBinding
 
     private var countDownTimer: CountDownTimer? = null
-    private val restTime: Long = 10000
-    private val exerciseTime: Long = 30000
+    private val restTime: Int = 10
+    private val exerciseTime: Int = 30
     private var restProgress = 0
     private var exerciseProgress = 0
 
@@ -25,6 +26,8 @@ class ExerciseActivity : AppCompatActivity() {
     private lateinit var mediaPlayerHelper: MediaPlayerHelper
 
     private lateinit var exerciseStatusRVAdapter: ExerciseStatusAdapter
+
+    private lateinit var intentToFinishActivity: Intent
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExerciseBinding.inflate(layoutInflater)
@@ -45,6 +48,8 @@ class ExerciseActivity : AppCompatActivity() {
         ttsHelper = TextToSpeechHelper(this)
         mediaPlayerHelper = MediaPlayerHelper(applicationContext)
 
+        intentToFinishActivity = Intent(this, FinishActivity::class.java)
+
         setupRestView()
         setupExerciseStatusRV()
     }
@@ -57,7 +62,7 @@ class ExerciseActivity : AppCompatActivity() {
     }
 
     private fun setupRestView() {
-        binding.progressBarTimer.max = (restTime / 1000).toInt()
+        binding.progressBarTimer.max = restTime
         if (countDownTimer != null) {
             countDownTimer?.cancel()
             restProgress = 0
@@ -74,9 +79,10 @@ class ExerciseActivity : AppCompatActivity() {
             )
         )
         binding.tvExercise.text = when (currentExerciseId) {
-            -1 -> "GET READY"
             exerciseList.size - 1 -> "WELL DONE!"
-            else -> "Just ${exerciseList.size - currentExerciseId - 1} More"
+            else -> "GET READY"
+//            -1 -> "GET READY"
+//            else -> "Just ${exerciseList.size - currentExerciseId - 1} More"
         }
 
         val upNextText = if (currentExerciseId < exerciseList.size - 1) {
@@ -87,14 +93,14 @@ class ExerciseActivity : AppCompatActivity() {
         binding.tvUpNext.text = upNextText
 
         binding.progressBarTimer.progress = restProgress
-        countDownTimer = object : CountDownTimer(restTime, 1000) {
+        countDownTimer = object : CountDownTimer((restTime * 1000).toLong(), 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 restProgress++
-                binding.progressBarTimer.progress = (restTime / 1000 - restProgress).toInt()
-                binding.tvTimer.text = (restTime / 1000 - restProgress).toString()
+                binding.progressBarTimer.progress = (restTime - restProgress)
+                binding.tvTimer.text = (restTime - restProgress).toString()
                 when (restProgress) {
-                    2 -> ttsHelper.speak(upNextText)
-                    7 -> mediaPlayerHelper.startMediaPlayer()
+                    (restTime - 8) -> ttsHelper.speak(upNextText)
+                    (restTime - 3) -> mediaPlayerHelper.startMediaPlayer()
                 }
             }
 
@@ -116,7 +122,7 @@ class ExerciseActivity : AppCompatActivity() {
     }
 
     private fun setupExerciseView() {
-        binding.progressBarTimer.max = (exerciseTime / 1000).toInt()
+        binding.progressBarTimer.max = exerciseTime
         if (countDownTimer != null) {
             countDownTimer?.cancel()
             restProgress = 0
@@ -143,15 +149,15 @@ class ExerciseActivity : AppCompatActivity() {
             binding.tvUpNext.text = upNextText
 
             binding.progressBarTimer.progress = exerciseProgress
-            countDownTimer = object : CountDownTimer(exerciseTime, 1000) {
+            countDownTimer = object : CountDownTimer((exerciseTime * 1000).toLong(), 1000) {
                 override fun onTick(millisUntilFinished: Long) {
                     exerciseProgress++
                     binding.progressBarTimer.progress =
-                        (exerciseTime / 1000 - exerciseProgress).toInt()
-                    binding.tvTimer.text = (exerciseTime / 1000 - exerciseProgress).toString()
+                        (exerciseTime - exerciseProgress)
+                    binding.tvTimer.text = (exerciseTime - exerciseProgress).toString()
                     when (exerciseProgress) {
-                        24 -> ttsHelper.speak(upNextText)
-                        27 -> mediaPlayerHelper.startMediaPlayer()
+                        (exerciseTime - 6) -> ttsHelper.speak(upNextText)
+                        (exerciseTime - 3) -> mediaPlayerHelper.startMediaPlayer()
                     }
                 }
 
@@ -165,7 +171,11 @@ class ExerciseActivity : AppCompatActivity() {
                     exerciseList[currentExerciseId].setIsCompleted(true)
                     exerciseStatusRVAdapter.notifyItemChanged(currentExerciseId)
 
-                    setupRestView()
+                    if (currentExerciseId < exerciseList.size - 1) setupRestView()
+                    else {
+                        startActivity(intentToFinishActivity)
+                        finish()
+                    }
                 }
             }.start()
         }
