@@ -3,20 +3,22 @@ package com.example.a7minuteworkout
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.widget.Toast
 import com.example.a7minuteworkout.databinding.ActivityExerciseBinding
+import com.example.a7minuteworkout.helpers.TextToSpeechHelper
 
 class ExerciseActivity : AppCompatActivity() {
     private lateinit var binding: ActivityExerciseBinding
 
     private var countDownTimer: CountDownTimer? = null
-    private val restTime: Long = 2000
-    private val exerciseTime: Long = 3000
+    private val restTime: Long = 10000
+    private val exerciseTime: Long = 30000
     private var restProgress = 0
     private var exerciseProgress = 0
 
     private lateinit var exerciseList: ArrayList<ExerciseModel>
     private var currentExerciseId = -1
+
+    private lateinit var ttsHelper: TextToSpeechHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExerciseBinding.inflate(layoutInflater)
@@ -28,11 +30,13 @@ class ExerciseActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        exerciseList = Constants.getDefaultExerciseList()
-
         binding.toolbarExercise.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
+
+        exerciseList = Constants.getDefaultExerciseList()
+
+        ttsHelper = TextToSpeechHelper(this)
 
         setupRestView()
     }
@@ -72,6 +76,9 @@ class ExerciseActivity : AppCompatActivity() {
                 restProgress++
                 binding.progressBarTimer.progress = (restTime / 1000 - restProgress).toInt()
                 binding.tvTimer.text = (restTime / 1000 - restProgress).toString()
+                if (restProgress == 5) {
+                    ttsHelper.speak(upNextText)
+                }
             }
 
             override fun onFinish() {
@@ -121,6 +128,9 @@ class ExerciseActivity : AppCompatActivity() {
                     binding.progressBarTimer.progress =
                         (exerciseTime / 1000 - exerciseProgress).toInt()
                     binding.tvTimer.text = (exerciseTime / 1000 - exerciseProgress).toString()
+                    if (exerciseProgress == 25) {
+                        ttsHelper.speak("Take some rest")
+                    }
                 }
 
                 override fun onFinish() {
@@ -143,5 +153,6 @@ class ExerciseActivity : AppCompatActivity() {
             restProgress = 0
             exerciseProgress = 0
         }
+        ttsHelper.stopThenShutdown()
     }
 }
