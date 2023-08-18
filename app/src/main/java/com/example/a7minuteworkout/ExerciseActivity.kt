@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
 import com.example.a7minuteworkout.databinding.ActivityExerciseBinding
+import com.example.a7minuteworkout.helpers.MediaPlayerHelper
 import com.example.a7minuteworkout.helpers.TextToSpeechHelper
 
 class ExerciseActivity : AppCompatActivity() {
@@ -19,6 +20,7 @@ class ExerciseActivity : AppCompatActivity() {
     private var currentExerciseId = -1
 
     private lateinit var ttsHelper: TextToSpeechHelper
+    private lateinit var mediaPlayerHelper: MediaPlayerHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExerciseBinding.inflate(layoutInflater)
@@ -37,12 +39,13 @@ class ExerciseActivity : AppCompatActivity() {
         exerciseList = Constants.getDefaultExerciseList()
 
         ttsHelper = TextToSpeechHelper(this)
+        mediaPlayerHelper = MediaPlayerHelper(applicationContext)
 
         setupRestView()
     }
 
     private fun setupRestView() {
-        binding.progressBarTimer.max = 2
+        binding.progressBarTimer.max = (restTime / 1000).toInt()
         if (countDownTimer != null) {
             countDownTimer?.cancel()
             restProgress = 0
@@ -60,7 +63,8 @@ class ExerciseActivity : AppCompatActivity() {
         )
         binding.tvExercise.text = when (currentExerciseId) {
             -1 -> "GET READY"
-            else -> "WELL DONE!"
+            exerciseList.size - 1 -> "WELL DONE!"
+            else -> "Just ${exerciseList.size - currentExerciseId - 1} More"
         }
 
         val upNextText = if (currentExerciseId < exerciseList.size - 1) {
@@ -76,8 +80,9 @@ class ExerciseActivity : AppCompatActivity() {
                 restProgress++
                 binding.progressBarTimer.progress = (restTime / 1000 - restProgress).toInt()
                 binding.tvTimer.text = (restTime / 1000 - restProgress).toString()
-                if (restProgress == 5) {
-                    ttsHelper.speak(upNextText)
+                when (restProgress) {
+                    2 -> ttsHelper.speak(upNextText)
+                    7 -> mediaPlayerHelper.startMediaPlayer()
                 }
             }
 
@@ -95,7 +100,7 @@ class ExerciseActivity : AppCompatActivity() {
     }
 
     private fun setupExerciseView() {
-        binding.progressBarTimer.max = 3
+        binding.progressBarTimer.max = (exerciseTime / 1000).toInt()
         if (countDownTimer != null) {
             countDownTimer?.cancel()
             restProgress = 0
@@ -128,8 +133,9 @@ class ExerciseActivity : AppCompatActivity() {
                     binding.progressBarTimer.progress =
                         (exerciseTime / 1000 - exerciseProgress).toInt()
                     binding.tvTimer.text = (exerciseTime / 1000 - exerciseProgress).toString()
-                    if (exerciseProgress == 25) {
-                        ttsHelper.speak("Take some rest")
+                    when (exerciseProgress) {
+                        24 -> ttsHelper.speak(upNextText)
+                        27 -> mediaPlayerHelper.startMediaPlayer()
                     }
                 }
 
@@ -154,5 +160,6 @@ class ExerciseActivity : AppCompatActivity() {
             exerciseProgress = 0
         }
         ttsHelper.stopThenShutdown()
+        mediaPlayerHelper.stopMediaPlayer()
     }
 }
