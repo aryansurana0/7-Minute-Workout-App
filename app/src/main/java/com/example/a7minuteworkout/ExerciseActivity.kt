@@ -3,6 +3,8 @@ package com.example.a7minuteworkout
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.a7minuteworkout.adapters.ExerciseStatusAdapter
 import com.example.a7minuteworkout.databinding.ActivityExerciseBinding
 import com.example.a7minuteworkout.helpers.MediaPlayerHelper
 import com.example.a7minuteworkout.helpers.TextToSpeechHelper
@@ -21,6 +23,8 @@ class ExerciseActivity : AppCompatActivity() {
 
     private lateinit var ttsHelper: TextToSpeechHelper
     private lateinit var mediaPlayerHelper: MediaPlayerHelper
+
+    private lateinit var exerciseStatusRVAdapter: ExerciseStatusAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExerciseBinding.inflate(layoutInflater)
@@ -42,6 +46,14 @@ class ExerciseActivity : AppCompatActivity() {
         mediaPlayerHelper = MediaPlayerHelper(applicationContext)
 
         setupRestView()
+        setupExerciseStatusRV()
+    }
+
+    private fun setupExerciseStatusRV() {
+        binding.rvExerciseStatus.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        exerciseStatusRVAdapter = ExerciseStatusAdapter(exerciseList)
+        binding.rvExerciseStatus.adapter = exerciseStatusRVAdapter
     }
 
     private fun setupRestView() {
@@ -93,6 +105,10 @@ class ExerciseActivity : AppCompatActivity() {
 //                    "rest done",
 //                    Toast.LENGTH_SHORT
 //                ).show()
+                if (currentExerciseId < exerciseList.size) {
+                    exerciseList[currentExerciseId].setIsSelected(true)
+                    exerciseStatusRVAdapter.notifyItemChanged(currentExerciseId)
+                }
                 setupExerciseView()
             }
         }.start()
@@ -145,6 +161,10 @@ class ExerciseActivity : AppCompatActivity() {
 //                        "ex done",
 //                        Toast.LENGTH_SHORT
 //                    ).show()
+                    exerciseList[currentExerciseId].setIsSelected(false)
+                    exerciseList[currentExerciseId].setIsCompleted(true)
+                    exerciseStatusRVAdapter.notifyItemChanged(currentExerciseId)
+
                     setupRestView()
                 }
             }.start()
