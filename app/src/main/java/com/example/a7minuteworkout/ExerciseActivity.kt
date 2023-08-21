@@ -1,5 +1,6 @@
 package com.example.a7minuteworkout
 
+import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -7,6 +8,7 @@ import android.os.CountDownTimer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.a7minuteworkout.adapters.ExerciseStatusAdapter
 import com.example.a7minuteworkout.databinding.ActivityExerciseBinding
+import com.example.a7minuteworkout.databinding.DialogBackBtnConfirmationBinding
 import com.example.a7minuteworkout.helpers.MediaPlayerHelper
 import com.example.a7minuteworkout.helpers.TextToSpeechHelper
 
@@ -28,6 +30,8 @@ class ExerciseActivity : AppCompatActivity() {
     private lateinit var exerciseStatusRVAdapter: ExerciseStatusAdapter
 
     private lateinit var intentToFinishActivity: Intent
+    private lateinit var customDialog: Dialog
+    private lateinit var dialogBinding: DialogBackBtnConfirmationBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityExerciseBinding.inflate(layoutInflater)
@@ -39,8 +43,11 @@ class ExerciseActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        setupCustomDialogForBackButton()
         binding.toolbarExercise.setNavigationOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
+//            onBackPressedDispatcher.onBackPressed()
+            onBackPressed()
+//            setupCustomDialogForBackButton()
         }
 
         exerciseList = Constants.getDefaultExerciseList()
@@ -52,6 +59,26 @@ class ExerciseActivity : AppCompatActivity() {
 
         setupRestView()
         setupExerciseStatusRV()
+    }
+
+    override fun onBackPressed() {
+//        super.onBackPressed()
+//        setupCustomDialogForBackButton()
+        customDialog.show()
+    }
+
+    private fun setupCustomDialogForBackButton() {
+        customDialog = Dialog(this)
+        dialogBinding = DialogBackBtnConfirmationBinding.inflate(layoutInflater)
+        customDialog.setContentView(dialogBinding.root)
+        customDialog.setCanceledOnTouchOutside(false)
+        dialogBinding.btnYes.setOnClickListener {
+            this@ExerciseActivity.finish()
+            customDialog.dismiss()
+        }
+        dialogBinding.btnNo.setOnClickListener {
+            customDialog.dismiss()
+        }
     }
 
     private fun setupExerciseStatusRV() {
